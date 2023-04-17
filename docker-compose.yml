@@ -29,6 +29,18 @@ services:
       - 5432:5432
     environment:
       - "POSTGRES_HOST_AUTH_METHOD=trust"
-
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./static/mock:/home/jovyan/work/mock
+      - conda_venv:/opt/conda
+    ports:
+      - 8888:8888
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_TOKEN: "docker"
 volumes:
   postgres_data:
+  conda_venv:
