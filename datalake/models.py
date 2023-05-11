@@ -3,15 +3,6 @@ import uuid
 from django.db import models
 
 
-class Thing(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    class Meta:
-        indexes = [models.Index(fields=["id"])]
-        verbose_name = "Объект"
-        verbose_name_plural = "Объекты"
-
-
 class UnitOfMeasure(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -29,7 +20,11 @@ class AbstractProperty(models.Model):
         on_delete=models.RESTRICT,
         related_name="abstract_properties",
         verbose_name="Еденица измерения",
+        null=True,
+        blank=False
     )
+    value = models.CharField(max_length=255, verbose_name="Значение")
+    description = models.TextField(null=True, blank=True, verbose_name="Описание")
 
     class Meta:
         indexes = [models.Index(fields=["id"])]
@@ -37,82 +32,47 @@ class AbstractProperty(models.Model):
         verbose_name_plural = "Абстрактные свойства"
 
 
-class ChemicalElement(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    thing = models.OneToOneField(
-        Thing,
-        on_delete=models.RESTRICT,
-        related_name="chemical_element",
-        unique=True,
-        verbose_name="Объект",
-    )
+class ChemicalProperty(AbstractProperty):
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
-        verbose_name = "Химический элемент"
-        verbose_name_plural = "Химические элементы"
-
-
-class ChemicalProperty(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    abstract_propery = models.OneToOneField(
-        AbstractProperty,
-        on_delete=models.RESTRICT,
-        related_name="chemical_property",
-        unique=True,
-        verbose_name="Абстрактное свойство",
-    )
-
-    class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Химическое свойство"
         verbose_name_plural = "Химические свойства"
 
 
-class BacterialProperty(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    abstract_propery = models.OneToOneField(
-        AbstractProperty,
-        on_delete=models.RESTRICT,
-        related_name="bacterial_property",
-        unique=True,
-        verbose_name="Абстрактное свойство",
-    )
+class BacterialProperty(AbstractProperty):
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Свойство бактерий"
         verbose_name_plural = "Свойства бактерий"
 
 
-class Bacteria(models.Model):
+class Thing(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    thing = models.OneToOneField(
-        Thing,
-        on_delete=models.RESTRICT,
-        related_name="bacteria",
-        unique=True,
-        verbose_name="Объект",
-    )
+
+    class Meta:
+        indexes = [models.Index(fields=["id"])]
+        verbose_name = "Объект"
+        verbose_name_plural = "Объекты"
+
+
+class ChemicalElement(Thing):
+
+    class Meta:
+        verbose_name = "Химический элемент"
+        verbose_name_plural = "Химические элементы"
+
+
+class Bacteria(Thing):
     properties = models.ManyToManyField(
         BacterialProperty, related_name="bacterias", verbose_name="Свойства бактерий"
     )
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Бактерия"
         verbose_name_plural = "Бактерии"
 
 
-class ChemicalCompound(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    thing = models.OneToOneField(
-        Thing,
-        on_delete=models.RESTRICT,
-        related_name="chemical_compounds",
-        unique=True,
-        verbose_name="Объект",
-    )
+class ChemicalCompound(Thing):
     properties = models.ManyToManyField(
         ChemicalProperty, related_name="chemicals", verbose_name="Свойства химикатов"
     )
@@ -123,7 +83,6 @@ class ChemicalCompound(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Химическое соединение"
         verbose_name_plural = "Химические соединения"
 
@@ -143,26 +102,16 @@ class DataSet(models.Model):
         verbose_name_plural = "Наборы данных"
 
 
-class TrainDS(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    dataset = models.OneToOneField(
-        DataSet, related_name="traindses", verbose_name="Набор данных"
-    )
+class TrainDS(DataSet):
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Тренировочный набор данных"
         verbose_name_plural = "Тренировочные наборы данных"
 
 
-class TestDS(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    dataset = models.OneToOneField(
-        DataSet, related_name="testdses", verbose_name="Набор данных"
-    )
+class TestDS(DataSet):
 
     class Meta:
-        indexes = [models.Index(fields=["id"])]
         verbose_name = "Тестовый набор данных"
         verbose_name_plural = "Тестовые наборы данных"
 
