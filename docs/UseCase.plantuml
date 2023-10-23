@@ -1,0 +1,24 @@
+@startuml UseCase
+left to right direction
+actor "Chemist" as ch
+actor "Data Scientist" as ds
+rectangle "Research Toolbox Software" {
+  usecase "Input data of field experiments" as UC1
+  usecase "Data preprocessing of field experiments" as UC2
+  (UC2) .> (UC1) : extends
+  usecase "Run computational experiments" as UC3
+  usecase "Analyse the results of computational experiments" as UC4
+  usecase "Read data of field experiments" as UC5
+  usecase "Analyse data of field experiments" as UC6
+}
+ch --> UC1
+ch --> UC2
+ch --> UC4
+ch --> UC5
+ch --> UC6
+
+UC3 <-- ds
+UC4 <-- ds
+UC5 <-- ds
+UC6 <-- ds
+@enduml
